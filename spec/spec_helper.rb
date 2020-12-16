@@ -1,11 +1,19 @@
 require 'hi_httparty'
 require 'faker'
+require 'dotenv'
+require 'factory_bot'
+
+Dotenv.load('.env.qa')
 
 include HiHttparty::RequestsType
 
 HiHttparty.configure do |config_hihttparty|
   config_hihttparty.timeout_value = 10
  end
+
+include FactoryBot::Syntax::Methods
+FactoryBot.definition_file_paths = %w(./spec/supports/factories)
+FactoryBot.find_definitions
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

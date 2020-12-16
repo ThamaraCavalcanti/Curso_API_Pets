@@ -2,51 +2,20 @@ require_relative '../app/pet.rb'
 
 describe 'pet' do
   subject(:pet) { Pet.new }
+  let(:obj_pet) {attributes_for(:status_sold)}
 
   context 'crud - pet' do
-    #Cadastro solicita o BODY como REQUIRE*
     it 'cadastrar pet' do
-      body = {
-        "id": 0,
-        "category": {
-          "id": 0,
-          "name": 'doguinho',
-        },
-        "name": 'Jureminha',
-        "photoUrls": [''],
-        "tags": [
-          {
-                    "id": 0,
-                    "name": 'buldog',
-                  },
-        ],
-        "status": 'available',
-      }.to_json
+      # Esse testes, apenas precisamos informar o body com as informaçoes necessárias.
+      resultado = pet.cadastrar(obj_pet)
 
-      resultado = pet.cadastrar(body)
       expect(resultado.code).to eq(200)
     end
 
     it 'buscar pet cadastrado' do
-      #!Nesse teste teste, a api apresenta um BUG. Mesmo inserindo  um status invalido, ou lançando o mesmo como nil, o status que devolve é o 200
-      body = {
-        "id": 0,
-        "category": {
-          "id": 0,
-          "name": 'cat',
-        },
-        "name": 'fild',
-        "photoUrls": [''],
-        "tags": [
-          {
-                "id": 0,
-                "name": 'gatinho',
-              },
-        ],
-        "status": 'pending',
-      }.to_json
-      estado            = 'pending'
-      resultado_criacao = pet.cadastrar(body)
+      # Nesse teste teste, a api apresenta um BUG. Mesmo inserindo um status inválido, ou lançando o mesmo como nil, o status que devolve é o HTTP200      
+      resultado_criacao = pet.cadastrar(obj_pet)
+      estado            = resultado_criacao['status']
       resultado         = pet.buscar_pet(estado)
       achou_status      = resultado.any? { |compara| compara['status'] == resultado_criacao['status'] }
      
@@ -55,54 +24,30 @@ describe 'pet' do
     end
 
     it 'alterar pet cadastrado' do
-      body = {
-        "id": 9222968140496873682,
-        "category": {
-          "id": 0,
-          "name": 'cat',
-        },
-        "name": 'fild',
-        "photoUrls": [''],
-        "tags": [
-          {
-                "id": 0,
-                "name": 'alterei',
-              },
-        ],
-        "status": 'available',
-      }.to_json
+      # Por padrão, coloquei o status para ser Sold. Verificar no LET
+      # Em caso de teste, insira os puts em Resultado_criacao e Resultado
 
-      # Adicionei estaticamente um valor de ID valido e alterei, tbm estaticamente, o valor tags => name
-      resultado = pet.alterar(body)
+      resultado_criacao = pet.cadastrar(obj_pet)
+      obj_pet[:status]  = "available"
+      resultado         = pet.alterar(obj_pet)
+      
       expect(resultado.code).to eq(200)
+      expect(resultado['status']).to eq("available")
     end
     
     it 'deletar pet cadastrado' do
+      # Relizei a criação de um novo pet, guardei o valor de ID do pet e em seguida, solicitei a exclusão.
+      # Após, solicitei uma busca pelo ID antes excluído para fazer a comparação com o OBJ_PET gerado na criação, o que teria que retornar false.
+      # Em caso de teste, insira os puts em id_pet, resultado e existe_id
 
-      body = {
-        "id": 0,
-        "category": {
-          "id": 0,
-          "name": 'cat',
-        },
-        "name": 'fild',
-        "photoUrls": [''],
-        "tags": [
-          {
-                "id": 0,
-                "name": 'alterei',
-              },
-        ],
-        "status": 'available',
-      }.to_json
-
-      #gerei uma nova criação, guardei o valor de id do pet para que possa ser feita a exclusão.
-      resultado_criacao = pet.cadastrar(body)
+      resultado_criacao = pet.cadastrar(obj_pet)
       id_pet            = resultado_criacao['id']
       resultado         = pet.deletar(id_pet)
+      resultado_filtro  = pet.buscar_pet(id_pet)
+      existe_id         = resultado_filtro.any? {|existe| existe['id'] == obj_pet[:id]}
+
       expect(resultado.code).to eq(200)
-
+      expect(existe_id).to be_falsey
     end
-
   end
 end
