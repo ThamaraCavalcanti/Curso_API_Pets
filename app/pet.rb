@@ -13,4 +13,9 @@ class Pet
         uri      = "https://petstore.swagger.io/v2/pet"
         response = without_authentication('put', uri, body)
     end
+
+    def deletar(id_pet)
+        uri      = "https://petstore.swagger.io/v2/pet/#{id_pet}"
+        response = without_authentication('delete', uri)
+    end
 end

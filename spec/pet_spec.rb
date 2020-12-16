@@ -5,7 +5,7 @@ describe 'pet' do
 
   context 'crud - pet' do
     #Cadastro solicita o BODY como REQUIRE*
-    it 'cadastro de pet' do
+    it 'cadastrar pet' do
       body = {
         "id": 0,
         "category": {
@@ -27,7 +27,7 @@ describe 'pet' do
       expect(resultado.code).to eq(200)
     end
 
-    it 'buscar pet' do
+    it 'buscar pet cadastrado' do
       #!Nesse teste teste, a api apresenta um BUG. Mesmo inserindo  um status invalido, ou lançando o mesmo como nil, o status que devolve é o 200
       body = {
         "id": 0,
@@ -72,11 +72,36 @@ describe 'pet' do
         "status": 'available',
       }.to_json
 
+      # Adicionei estaticamente um valor de ID valido e alterei, tbm estaticamente, o valor tags => name
       resultado = pet.alterar(body)
       expect(resultado.code).to eq(200)
     end
     
     it 'deletar pet cadastrado' do
+
+      body = {
+        "id": 0,
+        "category": {
+          "id": 0,
+          "name": 'cat',
+        },
+        "name": 'fild',
+        "photoUrls": [''],
+        "tags": [
+          {
+                "id": 0,
+                "name": 'alterei',
+              },
+        ],
+        "status": 'available',
+      }.to_json
+
+      #gerei uma nova criação, guardei o valor de id do pet para que possa ser feita a exclusão.
+      resultado_criacao = pet.cadastrar(body)
+      id_pet            = resultado_criacao['id']
+      resultado         = pet.deletar(id_pet)
+      expect(resultado.code).to eq(200)
+
     end
 
   end
